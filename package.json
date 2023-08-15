@@ -1,21 +1,16 @@
 {
-  "name": "@hieuzest/koishi-plugin-cachetools",
+  "name": "@hieuzest/cachetools",
   "description": "",
-  "version": "0.0.1",
-  "main": "lib/index.js",
+  "version": "0.1.1",
+  "main": "lib/index.cjs",
+  "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
   "files": [
-    "lib",
-    "dist"
+    "lib"
   ],
   "license": "MIT",
   "scripts": {},
-  "keywords": [
-    "chatbot",
-    "koishi",
-    "plugin"
-  ],
-  "peerDependencies": {
-    "koishi": "4.14.0"
+  "dependencies": {
+    "cosmokit": "^1.4.4"
   }
 }
