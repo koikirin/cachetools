@@ -1,5 +1,5 @@
 import { Dict } from 'cosmokit'
-import { Cache, Options, CachedFunction, cached, cachedClass, CachedClass } from './cache'
+import { Cache, cached, CachedClass, cachedClass, CachedFunction, Options } from './cache'
 
 interface Entry<T> {
   value: T
@@ -47,7 +47,7 @@ export class TTLCache<T> implements Cache<T> {
   }
 }
 
-export function ttlcached<T extends any[], R, F extends (...args: T) => R>(options: Options, resolver?: (...args: T) => string):
+export function ttlcached<T extends any[]>(options: Options, resolver?: (...args: T) => string):
   (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void
 
 export function ttlcached<T extends any[], R, F extends (...args: T) => R>(options: Options, resolver: (...args: T) => string, func: F):
@@ -57,6 +57,8 @@ export function ttlcached<T extends any[], R, F extends (...args: T) => R>(optio
   return cached(TTLCache, options, resolver, func)
 }
 
-export function ttlcachedClass<T extends object, K extends keyof T, O = Options, P extends string = '_'>(object: T, cachedKeys: Record<K, O>, prefix?: P): CachedClass<T, K, P> {
+export function ttlcachedClass<T extends object, K extends keyof T, O = Options, P extends string = '_'>(
+  object: T, cachedKeys: Record<K, O>, prefix?: P,
+): CachedClass<T, K, P> {
   return cachedClass(TTLCache, object, cachedKeys, prefix)
 }

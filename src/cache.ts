@@ -2,15 +2,15 @@ import { defineProperty } from 'cosmokit'
 
 type Prefixed<K, P extends string> = K extends string
   ? `${P}${K}`
-  : never;
+  : never
 
 type PrefixRemoved<PK, P extends string> = PK extends Prefixed<infer K, P>
   ? K
-  : '';
+  : ''
 
 type PrefixedValue<T extends object, PK extends string, P extends string> = T extends { [K in PrefixRemoved<PK, P>]: infer TValue }
   ? TValue
-  : never;
+  : never
 
 type PrefixedObject<T extends object, P extends string> = {
   [K in Prefixed<keyof T, P>]: PrefixedValue<T, K, P>
@@ -34,17 +34,22 @@ export interface Cache<T> {
   delete(key: string): void
 }
 
-const FUNC_ERROR_TEXT = 'Expected a function';
+const FUNC_ERROR_TEXT = 'Expected a function'
 
 export interface CachedFunction<T extends any[], R, F> {
-  cache: Cache<R>,
-  func: (...args: T) => F,
-  direct: (...args: T) => F,
+  cache: Cache<R>
+  func: (...args: T) => F
+  direct: (...args: T) => F
   (...args: T): F
 }
 
-function cachedAsync<T extends any[], R, C extends Cache<R>>(cacheClass: { new(options: Options): C }, func: (...args: T) => Promise<R>, resolver: (...args: T) => string, options?: Options): CachedFunction<T, R, Promise<R>> {
-  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
+function cachedAsync<T extends any[], R, C extends Cache<R>>(
+  CacheClass: { new(options: Options): C },
+  func: (...args: T) => Promise<R>,
+  resolver: (...args: T) => string,
+  options?: Options,
+): CachedFunction<T, R, Promise<R>> {
+  if (typeof func !== 'function' || (resolver != null && typeof resolver !== 'function')) {
     throw new TypeError(FUNC_ERROR_TEXT)
   }
   const memoized = async function (...args: T) {
@@ -55,7 +60,7 @@ function cachedAsync<T extends any[], R, C extends Cache<R>>(cacheClass: { new(o
     cache.set(key, result)
     return result
   }
-  memoized.cache = new cacheClass(options)
+  memoized.cache = new CacheClass(options)
   memoized.func = func
   memoized.direct = async function (...args: T) {
     const key = resolver ? resolver.apply(this, args) : args[0],
@@ -67,8 +72,13 @@ function cachedAsync<T extends any[], R, C extends Cache<R>>(cacheClass: { new(o
   return memoized
 }
 
-function cachedSync<T extends any[], R, C extends Cache<R>>(cacheClass: { new(options: Options): C }, func: (...args: T) => R, resolver: (...args: T) => string, options?: Options): CachedFunction<T, R, R> {
-  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
+function cachedSync<T extends any[], R, C extends Cache<R>>(
+  CacheClass: { new(options: Options): C },
+  func: (...args: T) => R,
+  resolver: (...args: T) => string,
+  options?: Options,
+): CachedFunction<T, R, R> {
+  if (typeof func !== 'function' || (resolver != null && typeof resolver !== 'function')) {
     throw new TypeError(FUNC_ERROR_TEXT)
   }
   const memoized = function (...args: T) {
@@ -80,7 +90,7 @@ function cachedSync<T extends any[], R, C extends Cache<R>>(cacheClass: { new(op
     cache.set(key, result)
     return result
   }
-  memoized.cache = new cacheClass(options)
+  memoized.cache = new CacheClass(options)
   memoized.func = func
   memoized.direct = function (...args: T) {
     const key = resolver ? resolver.apply(this, args) : args[0],
@@ -92,29 +102,45 @@ function cachedSync<T extends any[], R, C extends Cache<R>>(cacheClass: { new(op
   return memoized
 }
 
-export function cached<T extends any[], R, F extends (...args: T) => R, C extends Cache<R>>(cacheClass: { new(options: Options): C }, options: Options, resolver?: (...args: T) => string):
-  (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void
+export function cached<T extends any[], R, C extends Cache<R>>(
+  CacheClass: { new(options: Options): C },
+  options: Options,
+  resolver?: (...args: T) => string
+): (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void
 
-export function cached<T extends any[], R, F extends (...args: T) => R, C extends Cache<R>>(cacheClass: { new(options: Options): C }, options: Options, resolver: (...args: T) => string, func: F):
-  CachedFunction<T, F extends (...args: T) => infer R ? R extends Promise<infer V> ? V : R : never, F extends (...args: T) => infer R ? R : never>
+export function cached<T extends any[], R, F extends (...args: T) => R, C extends Cache<R>>(
+  CacheClass: { new(options: Options): C },
+  options: Options,
+  resolver: (...args: T) => string,
+  func: F): CachedFunction<T, F extends (...args: T) => infer R ? R extends Promise<infer V> ? V : R : never, F extends (...args: T) => infer R ? R : never>
 
-export function cached<T extends any[], R, F extends (...args: T) => R, C extends Cache<R>>(cacheClass: { new(options: Options): C }, options: Options, resolver?: (...args: T) => string, func?: F) {
+export function cached<T extends any[], R, F extends (...args: T) => R, C extends Cache<R>>(
+  CacheClass: { new(options: Options): C },
+  options: Options,
+  resolver?: (...args: T) => string,
+  func?: F,
+) {
   if (func) {
-    if (func.constructor.name === 'AsyncFunction')
-      return cachedAsync(cacheClass, func as any, resolver, options) as any
-    else
-      return cachedSync(cacheClass, func as any, resolver, options) as any
-  } else return function wrapper(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    if (descriptor.value.constructor.name === 'AsyncFunction')
-      descriptor.value = cachedAsync(cacheClass, descriptor.value, resolver, options) as any
-    else
-      descriptor.value = cachedSync(cacheClass, descriptor.value, resolver, options) as any
+    if (func.constructor.name === 'AsyncFunction') {
+      return cachedAsync(CacheClass, func as any, resolver, options) as any
+    } else { return cachedSync(CacheClass, func as any, resolver, options) as any }
+  } else {
+    return function wrapper(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      if (descriptor.value.constructor.name === 'AsyncFunction') {
+        descriptor.value = cachedAsync(CacheClass, descriptor.value, resolver, options) as any
+      } else { descriptor.value = cachedSync(CacheClass, descriptor.value, resolver, options) as any }
+    }
   }
 }
 
-export function cachedClass<T extends object, R, C extends Cache<R>, K extends keyof T, O = Options, P extends string = '_'>(cacheClass: { new(options: Options): C }, object: T, cachedKeys: Record<K, O>, prefix?: P): CachedClass<T, K, P> {
+export function cachedClass<T extends object, R, C extends Cache<R>, K extends keyof T, O = Options, P extends string = '_'>(
+  CacheClass: { new(options: Options): C },
+  object: T,
+  cachedKeys: Record<K, O>,
+  prefix?: P,
+): CachedClass<T, K, P> {
   for (const [key, options] of Object.entries(cachedKeys)) {
-    const _cached = cached(cacheClass, options, (arg) => arg, object[key])
+    const _cached = cached(CacheClass, options, (arg) => arg, object[key])
     defineProperty(object, key, _cached)
     defineProperty(object, `${prefix || '_'}${key}`, _cached.direct)
   }
