@@ -3,7 +3,7 @@ import { Cache, cached, CachedClass, cachedClass, CachedFunction, Options } from
 
 interface Entry<T> {
   value: T
-  timer?: NodeJS.Timer
+  timer?: NodeJS.Timeout
 }
 
 export class TTLCache<T> implements Cache<T> {
