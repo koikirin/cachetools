@@ -11,6 +11,6 @@
   "license": "MIT",
   "scripts": {},
   "dependencies": {
-    "cosmokit": "^1.4.4"
+    "cosmokit": "^1.4.5"
   }
 }
