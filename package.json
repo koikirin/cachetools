@@ -1,7 +1,7 @@
 {
   "name": "@hieuzest/cachetools",
   "description": "",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -9,7 +9,6 @@
     "lib"
   ],
   "license": "MIT",
-  "scripts": {},
   "dependencies": {
     "cosmokit": "^1.4.5"
   }

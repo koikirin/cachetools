@@ -53,7 +53,7 @@ function cachedAsync<T extends any[], R, C extends Cache<R>>(
     throw new TypeError(FUNC_ERROR_TEXT)
   }
   const memoized = async function (...args: T) {
-    const key = resolver ? resolver.apply(this, args) : (args[0] ? JSON.stringify(args) : null),
+    const key = resolver ? resolver.apply(this, args) : (args?.length ? JSON.stringify(args) : null),
       cache = memoized.cache
     if (cache.has(key)) return cache.get(key)
     const result: R = await func.apply(this, args)
@@ -82,9 +82,8 @@ function cachedSync<T extends any[], R, C extends Cache<R>>(
     throw new TypeError(FUNC_ERROR_TEXT)
   }
   const memoized = function (...args: T) {
-    const key = resolver ? resolver.apply(this, args) : (args[0] ? JSON.stringify(args) : null),
+    const key = resolver ? resolver.apply(this, args) : (args?.length ? JSON.stringify(args) : null),
       cache = memoized.cache
-
     if (cache.has(key)) return cache.get(key)
     const result: R = func.apply(this, args)
     cache.set(key, result)
